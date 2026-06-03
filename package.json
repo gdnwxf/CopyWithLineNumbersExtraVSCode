@@ -1,0 +1,155 @@
+{
+  "name": "copy-extra-by-qinghao",
+  "displayName": "Copy Extra By QingHao",
+  "description": "Copy selected code in VS Code with file paths, line ranges, and line numbers.",
+  "version": "0.0.1",
+  "publisher": "gdnwxf",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:copyExtra.copyRelativePathAndLineRangeOnly",
+    "onCommand:copyExtra.copyFullPathAndLineRangeOnly",
+    "onCommand:copyExtra.copyRelativePathLineRangeSelected",
+    "onCommand:copyExtra.copyRelativePathLineNumbersSelected",
+    "onCommand:copyExtra.copyFullPathLineRangeSelected",
+    "onCommand:copyExtra.copyFullPathLineNumbersSelected",
+    "onCommand:copyExtra.copyRelativePathLineRange",
+    "onCommand:copyExtra.copyRelativePathLineNumbers",
+    "onCommand:copyExtra.copyFullPathLineRange",
+    "onCommand:copyExtra.copyFullPathLineNumbers"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "copyExtra.copyRelativePathAndLineRangeOnly",
+        "title": "Copy Relative Path Line Range Only",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyFullPathAndLineRangeOnly",
+        "title": "Copy Full Path and Line Range Only",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyRelativePathLineRangeSelected",
+        "title": "Copy Relative Path Line Range Selected",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyRelativePathLineNumbersSelected",
+        "title": "Copy Relative Path Line Numbers Selected",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyFullPathLineRangeSelected",
+        "title": "Copy Full Path Line Range Selected",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyFullPathLineNumbersSelected",
+        "title": "Copy Full Path Line Numbers Selected",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyRelativePathLineRange",
+        "title": "Copy Relative Path Line Range",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyRelativePathLineNumbers",
+        "title": "Copy Relative Path Line Numbers",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyFullPathLineRange",
+        "title": "Copy Full Path Line Range",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyFullPathLineNumbers",
+        "title": "Copy Full Path Line Numbers",
+        "category": "Copy Extra"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "copyExtra.copyRelativePathAndLineRangeOnly",
+          "group": "9_copyExtra_1@1",
+          "when": "editorTextFocus && editorHasSelection"
+        },
+        {
+          "command": "copyExtra.copyFullPathAndLineRangeOnly",
+          "group": "9_copyExtra_1@2",
+          "when": "editorTextFocus && editorHasSelection"
+        },
+        {
+          "command": "copyExtra.copyRelativePathLineRangeSelected",
+          "group": "9_copyExtra_2@1",
+          "when": "editorTextFocus && editorHasSelection"
+        },
+        {
+          "command": "copyExtra.copyRelativePathLineNumbersSelected",
+          "group": "9_copyExtra_2@2",
+          "when": "editorTextFocus && editorHasSelection"
+        },
+        {
+          "command": "copyExtra.copyFullPathLineRangeSelected",
+          "group": "9_copyExtra_2@3",
+          "when": "editorTextFocus && editorHasSelection"
+        },
+        {
+          "command": "copyExtra.copyFullPathLineNumbersSelected",
+          "group": "9_copyExtra_2@4",
+          "when": "editorTextFocus && editorHasSelection"
+        },
+        {
+          "command": "copyExtra.copyRelativePathLineRange",
+          "group": "9_copyExtra_3@1",
+          "when": "editorTextFocus && editorHasSelection"
+        },
+        {
+          "command": "copyExtra.copyRelativePathLineNumbers",
+          "group": "9_copyExtra_3@2",
+          "when": "editorTextFocus && editorHasSelection"
+        },
+        {
+          "command": "copyExtra.copyFullPathLineRange",
+          "group": "9_copyExtra_3@3",
+          "when": "editorTextFocus && editorHasSelection"
+        },
+        {
+          "command": "copyExtra.copyFullPathLineNumbers",
+          "group": "9_copyExtra_3@4",
+          "when": "editorTextFocus && editorHasSelection"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "copyExtra.copyFullPathLineRangeSelected",
+        "key": "ctrl+shift+c",
+        "mac": "cmd+shift+c",
+        "when": "editorTextFocus && editorHasSelection"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run build && node --test dist/copyFormatter.test.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.8.3",
+    "@vscode/vsce": "^3.6.2"
+  }
+}
