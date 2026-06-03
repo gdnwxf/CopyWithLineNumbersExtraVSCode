@@ -25,6 +25,12 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "submenus": [
+      {
+        "id": "copyExtra.editorContext",
+        "label": "Copy Extra"
+      }
+    ],
     "commands": [
       {
         "command": "copyExtra.copyRelativePathAndLineRangeOnly",
@@ -80,53 +86,60 @@
     "menus": {
       "editor/context": [
         {
+          "submenu": "copyExtra.editorContext",
+          "group": "navigation@1",
+          "when": "editorTextFocus && editorHasSelection"
+        }
+      ],
+      "copyExtra.editorContext": [
+        {
           "command": "copyExtra.copyRelativePathAndLineRangeOnly",
-          "group": "9_copyExtra_1@1",
+          "group": "1_rangeOnly@1",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyFullPathAndLineRangeOnly",
-          "group": "9_copyExtra_1@2",
+          "group": "1_rangeOnly@2",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyRelativePathLineRangeSelected",
-          "group": "9_copyExtra_2@1",
+          "group": "2_selected@1",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyRelativePathLineNumbersSelected",
-          "group": "9_copyExtra_2@2",
+          "group": "2_selected@2",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyFullPathLineRangeSelected",
-          "group": "9_copyExtra_2@3",
+          "group": "2_selected@3",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyFullPathLineNumbersSelected",
-          "group": "9_copyExtra_2@4",
+          "group": "2_selected@4",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyRelativePathLineRange",
-          "group": "9_copyExtra_3@1",
+          "group": "3_fullLines@1",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyRelativePathLineNumbers",
-          "group": "9_copyExtra_3@2",
+          "group": "3_fullLines@2",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyFullPathLineRange",
-          "group": "9_copyExtra_3@3",
+          "group": "3_fullLines@3",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyFullPathLineNumbers",
-          "group": "9_copyExtra_3@4",
+          "group": "3_fullLines@4",
           "when": "editorTextFocus && editorHasSelection"
         }
       ]
