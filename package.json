@@ -64,7 +64,7 @@
       },
       {
         "command": "copyExtra.copyFullPathLineRangeSelected",
-        "title": "Copy Full Path Line Range Selected\tCtrl+Shift+C",
+        "title": "Copy Full Path Line Range Selected",
         "category": "Copy Extra"
       },
       {
@@ -99,7 +99,7 @@
       },
       {
         "command": "copyExtra.copyExplorerFullPath",
-        "title": "Copy Full Path\tCtrl+Shift+C",
+        "title": "Copy Full Path",
         "category": "Copy Extra"
       }
     ],
