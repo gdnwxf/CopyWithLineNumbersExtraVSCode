@@ -58,9 +58,7 @@ export function activate(context: vscode.ExtensionContext): void {
           return;
         }
 
-        const content = resources
-          .map((selectedResource) => resolveResourceDisplayPath(selectedResource, command.useRelativePath))
-          .join("\n");
+        const content = await buildExplorerCopyContent(resources, command.useRelativePath);
         await vscode.env.clipboard.writeText(content);
         void vscode.window.setStatusBarMessage("Copy Extra copied to clipboard.", 2000);
       })
@@ -100,4 +98,29 @@ function resolveExplorerResources(
   }
 
   return uniqueResources;
+}
+
+async function buildExplorerCopyContent(
+  resources: readonly vscode.Uri[],
+  useRelativePath: boolean
+): Promise<string> {
+  const copyLines = await Promise.all(
+    resources.map((selectedResource) => buildExplorerCopyLine(selectedResource, useRelativePath))
+  );
+  return copyLines.join("\n");
+}
+
+async function buildExplorerCopyLine(resource: vscode.Uri, useRelativePath: boolean): Promise<string> {
+  const prefix = await resolveExplorerResourcePrefix(resource);
+  const displayPath = resolveResourceDisplayPath(resource, useRelativePath);
+  return `${prefix} ${displayPath}`;
+}
+
+async function resolveExplorerResourcePrefix(resource: vscode.Uri): Promise<"File:" | "Path:"> {
+  try {
+    const stat = await vscode.workspace.fs.stat(resource);
+    return (stat.type & vscode.FileType.Directory) !== 0 ? "Path:" : "File:";
+  } catch {
+    return "File:";
+  }
 }
