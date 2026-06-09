@@ -185,16 +185,16 @@
     },
     "keybindings": [
       {
+        "command": "copyExtra.copyExplorerFullPath",
+        "key": "ctrl+shift+c",
+        "mac": "cmd+shift+c",
+        "when": "explorerResourceIsFile || explorerResourceIsFolder"
+      },
+      {
         "command": "copyExtra.copyFullPathLineRangeSelected",
         "key": "ctrl+shift+c",
         "mac": "cmd+shift+c",
         "when": "editorTextFocus && editorHasSelection"
-      },
-      {
-        "command": "copyExtra.copyExplorerFullPath",
-        "key": "ctrl+shift+c",
-        "mac": "cmd+shift+c",
-        "when": "filesExplorerFocus && !inputFocus"
       }
     ]
   },
