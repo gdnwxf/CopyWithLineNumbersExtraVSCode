@@ -2,7 +2,7 @@
   "name": "copy-extra-by-qinghao",
   "displayName": "Copy Extra By QingHao",
   "description": "Copy selected code in VS Code with file paths, line ranges, and line numbers.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "gdnwxf",
   "license": "MIT",
   "engines": {
@@ -21,13 +21,19 @@
     "onCommand:copyExtra.copyRelativePathLineRange",
     "onCommand:copyExtra.copyRelativePathLineNumbers",
     "onCommand:copyExtra.copyFullPathLineRange",
-    "onCommand:copyExtra.copyFullPathLineNumbers"
+    "onCommand:copyExtra.copyFullPathLineNumbers",
+    "onCommand:copyExtra.copyExplorerRelativePath",
+    "onCommand:copyExtra.copyExplorerFullPath"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "submenus": [
       {
         "id": "copyExtra.editorContext",
+        "label": "Copy Extra"
+      },
+      {
+        "id": "copyExtra.explorerContext",
         "label": "Copy Extra"
       }
     ],
@@ -81,6 +87,16 @@
         "command": "copyExtra.copyFullPathLineNumbers",
         "title": "Copy Full Path Line Numbers",
         "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyExplorerRelativePath",
+        "title": "Copy Relative Path",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyExplorerFullPath",
+        "title": "Copy Full Path",
+        "category": "Copy Extra"
       }
     ],
     "menus": {
@@ -88,19 +104,26 @@
         {
           "submenu": "copyExtra.editorContext",
           "group": "navigation@1",
-          "when": "editorTextFocus && editorHasSelection"
+          "when": "editorTextFocus"
+        }
+      ],
+      "explorer/context": [
+        {
+          "submenu": "copyExtra.explorerContext",
+          "group": "navigation@1",
+          "when": "resourceScheme == file"
         }
       ],
       "copyExtra.editorContext": [
         {
           "command": "copyExtra.copyRelativePathAndLineRangeOnly",
           "group": "1_rangeOnly@1",
-          "when": "editorTextFocus && editorHasSelection"
+          "when": "editorTextFocus"
         },
         {
           "command": "copyExtra.copyFullPathAndLineRangeOnly",
           "group": "1_rangeOnly@2",
-          "when": "editorTextFocus && editorHasSelection"
+          "when": "editorTextFocus"
         },
         {
           "command": "copyExtra.copyRelativePathLineRangeSelected",
@@ -125,22 +148,34 @@
         {
           "command": "copyExtra.copyRelativePathLineRange",
           "group": "3_fullLines@1",
-          "when": "editorTextFocus && editorHasSelection"
+          "when": "editorTextFocus"
         },
         {
           "command": "copyExtra.copyRelativePathLineNumbers",
           "group": "3_fullLines@2",
-          "when": "editorTextFocus && editorHasSelection"
+          "when": "editorTextFocus"
         },
         {
           "command": "copyExtra.copyFullPathLineRange",
           "group": "3_fullLines@3",
-          "when": "editorTextFocus && editorHasSelection"
+          "when": "editorTextFocus"
         },
         {
           "command": "copyExtra.copyFullPathLineNumbers",
           "group": "3_fullLines@4",
-          "when": "editorTextFocus && editorHasSelection"
+          "when": "editorTextFocus"
+        }
+      ],
+      "copyExtra.explorerContext": [
+        {
+          "command": "copyExtra.copyExplorerRelativePath",
+          "group": "1_path@1",
+          "when": "resourceScheme == file"
+        },
+        {
+          "command": "copyExtra.copyExplorerFullPath",
+          "group": "1_path@2",
+          "when": "resourceScheme == file"
         }
       ]
     },

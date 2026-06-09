@@ -36,12 +36,16 @@ export function createSelectionSnapshot(
 }
 
 export function resolveDisplayPath(document: vscode.TextDocument, useRelativePath: boolean): string {
-  const absolutePath = document.uri.fsPath;
+  return resolveResourceDisplayPath(document.uri, useRelativePath);
+}
+
+export function resolveResourceDisplayPath(uri: vscode.Uri, useRelativePath: boolean): string {
+  const absolutePath = uri.fsPath;
   if (!useRelativePath) {
     return absolutePath;
   }
 
-  const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+  const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
   if (!workspaceFolder) {
     return absolutePath;
   }
