@@ -191,10 +191,10 @@
         "when": "explorerResourceIsFile || explorerResourceIsFolder"
       },
       {
-        "command": "copyExtra.copyFullPathLineRangeSelected",
+        "command": "copyExtra.copyFullPathAndLineRangeOnly",
         "key": "ctrl+shift+c",
         "mac": "cmd+shift+c",
-        "when": "editorTextFocus && editorHasSelection"
+        "when": "editorTextFocus"
       }
     ]
   },
