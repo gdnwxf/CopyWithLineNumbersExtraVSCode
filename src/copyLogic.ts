@@ -18,6 +18,13 @@ export interface SelectionSnapshot {
   readonly touchedLineText: string;
 }
 
+export type ExplorerResourcePrefix = "File:" | "Path:";
+
+export interface ExplorerCopyEntry {
+  readonly prefix: ExplorerResourcePrefix;
+  readonly displayPath: string;
+}
+
 export function buildCopyContent(
   filePath: string,
   snapshot: SelectionSnapshot,
@@ -116,6 +123,24 @@ export function buildFileHeader(filePath: string, startLine: number, endLine: nu
     ? `${startLine + 1}`
     : `${startLine + 1}-${endLine + 1}`;
   return `File: ${filePath}:${lineRange} 行\n`;
+}
+
+export function buildExplorerCopyContentFromEntries(entries: readonly ExplorerCopyEntry[]): string {
+  const groupedPaths = new Map<ExplorerResourcePrefix, string[]>();
+
+  for (const entry of entries) {
+    const paths = groupedPaths.get(entry.prefix);
+    if (paths) {
+      paths.push(entry.displayPath);
+      continue;
+    }
+
+    groupedPaths.set(entry.prefix, [entry.displayPath]);
+  }
+
+  return Array.from(groupedPaths.entries())
+    .map(([prefix, paths]) => `${prefix} ${paths.join(",")}`)
+    .join("\n");
 }
 
 function computeLineNumberAt(text: string, offset: number): number {

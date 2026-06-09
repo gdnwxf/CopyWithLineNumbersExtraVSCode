@@ -2,7 +2,7 @@
   "name": "copy-extra-by-qinghao-plus",
   "displayName": "Copy Extra By QingHao Plus",
   "description": "Copy selected code in VS Code with file paths, line ranges, and line numbers.",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "gdnwxf",
   "license": "MIT",
   "engines": {

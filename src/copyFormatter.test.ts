@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildCopyContent,
+  buildExplorerCopyContentFromEntries,
   buildFileHeader,
   CopyMode,
   countLineBreaks,
@@ -66,5 +67,37 @@ test("buildCopyContent prefixes header and line numbers for touched full lines",
       CopyMode.FullPathLineNumbers
     ),
     "File: src/a.ts:2-3 行\n    2: foo\n    3: bar\n"
+  );
+});
+
+test("buildExplorerCopyContentFromEntries joins selected folders on one line", () => {
+  assert.equal(
+    buildExplorerCopyContentFromEntries([
+      { prefix: "Path:", displayPath: "dist" },
+      { prefix: "Path:", displayPath: "node_modules" },
+      { prefix: "Path:", displayPath: "src" }
+    ]),
+    "Path: dist,node_modules,src"
+  );
+});
+
+test("buildExplorerCopyContentFromEntries joins selected files on one line", () => {
+  assert.equal(
+    buildExplorerCopyContentFromEntries([
+      { prefix: "File:", displayPath: "package.json" },
+      { prefix: "File:", displayPath: "tsconfig.json" }
+    ]),
+    "File: package.json,tsconfig.json"
+  );
+});
+
+test("buildExplorerCopyContentFromEntries groups mixed resource types", () => {
+  assert.equal(
+    buildExplorerCopyContentFromEntries([
+      { prefix: "Path:", displayPath: "src" },
+      { prefix: "File:", displayPath: "package.json" },
+      { prefix: "Path:", displayPath: "dist" }
+    ]),
+    "Path: src,dist\nFile: package.json"
   );
 });

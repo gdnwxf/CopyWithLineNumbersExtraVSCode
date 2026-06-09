@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { buildEditorCopyContent, CopyMode, resolveResourceDisplayPath } from "./copyFormatter";
+import { buildExplorerCopyContentFromEntries, type ExplorerCopyEntry, type ExplorerResourcePrefix } from "./copyLogic";
 
 interface RegisteredCommand {
   readonly id: string;
@@ -104,19 +105,19 @@ async function buildExplorerCopyContent(
   resources: readonly vscode.Uri[],
   useRelativePath: boolean
 ): Promise<string> {
-  const copyLines = await Promise.all(
-    resources.map((selectedResource) => buildExplorerCopyLine(selectedResource, useRelativePath))
+  const entries = await Promise.all(
+    resources.map((selectedResource) => buildExplorerCopyEntry(selectedResource, useRelativePath))
   );
-  return copyLines.join("\n");
+  return buildExplorerCopyContentFromEntries(entries);
 }
 
-async function buildExplorerCopyLine(resource: vscode.Uri, useRelativePath: boolean): Promise<string> {
+async function buildExplorerCopyEntry(resource: vscode.Uri, useRelativePath: boolean): Promise<ExplorerCopyEntry> {
   const prefix = await resolveExplorerResourcePrefix(resource);
   const displayPath = resolveResourceDisplayPath(resource, useRelativePath);
-  return `${prefix} ${displayPath}`;
+  return { prefix, displayPath };
 }
 
-async function resolveExplorerResourcePrefix(resource: vscode.Uri): Promise<"File:" | "Path:"> {
+async function resolveExplorerResourcePrefix(resource: vscode.Uri): Promise<ExplorerResourcePrefix> {
   try {
     const stat = await vscode.workspace.fs.stat(resource);
     return (stat.type & vscode.FileType.Directory) !== 0 ? "Path:" : "File:";
