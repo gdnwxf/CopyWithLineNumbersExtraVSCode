@@ -1,6 +1,12 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { CopyMode, type SelectionSnapshot, buildCopyContent, resolveSelectedEndLine } from "./copyLogic";
+import {
+  WINDOWS_COPY_PATH_FORMAT_CONFIG_KEY,
+  type WindowsCopyPathFormat,
+  formatFullPath,
+  formatRelativePath
+} from "./pathFormatter";
 
 export { CopyMode } from "./copyLogic";
 
@@ -41,17 +47,26 @@ export function resolveDisplayPath(document: vscode.TextDocument, useRelativePat
 
 export function resolveResourceDisplayPath(uri: vscode.Uri, useRelativePath: boolean): string {
   const absolutePath = uri.fsPath;
+  const windowsCopyPathFormat = resolveWindowsCopyPathFormat();
   if (!useRelativePath) {
-    return absolutePath;
+    return formatFullPath(absolutePath, windowsCopyPathFormat);
   }
 
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
   if (!workspaceFolder) {
-    return absolutePath;
+    return formatFullPath(absolutePath, windowsCopyPathFormat);
   }
 
   const relativePath = path.relative(workspaceFolder.uri.fsPath, absolutePath);
-  return relativePath.length > 0 ? relativePath : path.basename(absolutePath);
+  const displayPath = relativePath.length > 0 ? relativePath : path.basename(absolutePath);
+  return formatRelativePath(displayPath, windowsCopyPathFormat);
+}
+
+function resolveWindowsCopyPathFormat(): WindowsCopyPathFormat {
+  const configuredValue = vscode.workspace
+    .getConfiguration()
+    .get<WindowsCopyPathFormat>(WINDOWS_COPY_PATH_FORMAT_CONFIG_KEY, "default");
+  return configuredValue;
 }
 
 function needsRelativePath(mode: CopyMode): boolean {

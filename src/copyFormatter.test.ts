@@ -10,6 +10,7 @@ import {
   resolveSelectedEndLine,
   trimTrailingLineBreak
 } from "./copyLogic";
+import { formatFullPath, formatRelativePath } from "./pathFormatter";
 
 test("trimTrailingLineBreak removes trailing CRLF and LF", () => {
   assert.equal(trimTrailingLineBreak("abc\r\n"), "abc");
@@ -100,4 +101,25 @@ test("buildExplorerCopyContentFromEntries groups mixed resource types", () => {
     ]),
     "Path: src,dist\nFile: package.json"
   );
+});
+
+test("formatFullPath converts Windows drive paths by selected shell format", () => {
+  const windowsPath = "c:\\a\\main.cpp";
+  assert.equal(formatFullPath(windowsPath, "default", "win32"), "c:\\a\\main.cpp");
+  assert.equal(formatFullPath(windowsPath, "wsl", "win32"), "/mnt/c/a/main.cpp");
+  assert.equal(formatFullPath(windowsPath, "unix", "win32"), "C:/a/main.cpp");
+  assert.equal(formatFullPath(windowsPath, "cygwin", "win32"), "/cygdrive/c/a/main.cpp");
+  assert.equal(formatFullPath(windowsPath, "msys", "win32"), "/c/a/main.cpp");
+  assert.equal(formatFullPath(windowsPath, "gitBash", "win32"), "/c/a/main.cpp");
+});
+
+test("formatRelativePath follows selected Windows shell separator", () => {
+  assert.equal(formatRelativePath("src\\main.cpp", "default", "win32"), "src\\main.cpp");
+  assert.equal(formatRelativePath("src\\main.cpp", "wsl", "win32"), "src/main.cpp");
+  assert.equal(formatRelativePath("src\\main.cpp", "gitBash", "win32"), "src/main.cpp");
+});
+
+test("path formatting leaves non-Windows paths unchanged", () => {
+  assert.equal(formatFullPath("/Users/liam/a/main.cpp", "wsl", "darwin"), "/Users/liam/a/main.cpp");
+  assert.equal(formatRelativePath("src/main.cpp", "wsl", "linux"), "src/main.cpp");
 });
