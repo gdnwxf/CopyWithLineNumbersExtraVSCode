@@ -39,6 +39,13 @@ test("buildFileHeader formats single-line and multi-line ranges", () => {
   assert.equal(buildFileHeader("/tmp/a.ts", 4, 6), "File: /tmp/a.ts:5-7 行\n");
 });
 
+test("buildFileHeader supports empty prefix and suffix", () => {
+  assert.equal(
+    buildFileHeader("/tmp/a.ts", 4, 6, { filePrefix: "", fileSuffix: "", pathPrefix: "Path:" }),
+    "/tmp/a.ts:5-7\n"
+  );
+});
+
 test("buildCopyContent prefixes header and line numbers for selected text", () => {
   assert.equal(
     buildCopyContent(
@@ -89,6 +96,16 @@ test("buildExplorerCopyContentFromEntries joins selected files on one line", () 
       { prefix: "File:", displayPath: "tsconfig.json" }
     ]),
     "File: package.json,tsconfig.json"
+  );
+});
+
+test("buildExplorerCopyContentFromEntries supports empty file and path prefixes", () => {
+  assert.equal(
+    buildExplorerCopyContentFromEntries([
+      { prefix: "Path:", displayPath: "src" },
+      { prefix: "File:", displayPath: "package.json" }
+    ], { filePrefix: "", fileSuffix: "行", pathPrefix: "" }),
+    "src\npackage.json"
   );
 });
 

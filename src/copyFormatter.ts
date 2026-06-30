@@ -1,6 +1,12 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
-import { CopyMode, type SelectionSnapshot, buildCopyContent, resolveSelectedEndLine } from "./copyLogic";
+import {
+  CopyMode,
+  type CopyTextFormatOptions,
+  type SelectionSnapshot,
+  buildCopyContent,
+  resolveSelectedEndLine
+} from "./copyLogic";
 import {
   WINDOWS_COPY_PATH_FORMAT_CONFIG_KEY,
   type WindowsCopyPathFormat,
@@ -10,6 +16,10 @@ import {
 
 export { CopyMode } from "./copyLogic";
 
+export const FILE_PREFIX_CONFIG_KEY = "copyExtra.filePrefix";
+export const FILE_SUFFIX_CONFIG_KEY = "copyExtra.fileSuffix";
+export const PATH_PREFIX_CONFIG_KEY = "copyExtra.pathPrefix";
+
 export function buildEditorCopyContent(
   document: vscode.TextDocument,
   selection: vscode.Selection,
@@ -17,7 +27,7 @@ export function buildEditorCopyContent(
 ): string {
   const snapshot = createSelectionSnapshot(document, selection);
   const displayPath = resolveDisplayPath(document, needsRelativePath(mode));
-  return buildCopyContent(displayPath, snapshot, mode);
+  return buildCopyContent(displayPath, snapshot, mode, resolveCopyTextFormatOptions());
 }
 
 export function createSelectionSnapshot(
@@ -60,6 +70,15 @@ export function resolveResourceDisplayPath(uri: vscode.Uri, useRelativePath: boo
   const relativePath = path.relative(workspaceFolder.uri.fsPath, absolutePath);
   const displayPath = relativePath.length > 0 ? relativePath : path.basename(absolutePath);
   return formatRelativePath(displayPath, windowsCopyPathFormat);
+}
+
+export function resolveCopyTextFormatOptions(): CopyTextFormatOptions {
+  const configuration = vscode.workspace.getConfiguration();
+  return {
+    filePrefix: configuration.get<string>(FILE_PREFIX_CONFIG_KEY, "File:"),
+    fileSuffix: configuration.get<string>(FILE_SUFFIX_CONFIG_KEY, "行"),
+    pathPrefix: configuration.get<string>(PATH_PREFIX_CONFIG_KEY, "Path:")
+  };
 }
 
 function resolveWindowsCopyPathFormat(): WindowsCopyPathFormat {

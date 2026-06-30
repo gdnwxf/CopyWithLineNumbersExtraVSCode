@@ -2,7 +2,7 @@
   "name": "copy-extra-by-qinghao-plus",
   "displayName": "Copy Extra By QingHao Plus",
   "description": "Copy selected code in VS Code with file paths, line ranges, and line numbers.",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "publisher": "gdnwxf",
   "license": "GPL-3.0-only",
   "repository": {
@@ -106,6 +106,21 @@
     "configuration": {
       "title": "Copy Extra",
       "properties": {
+        "copyExtra.filePrefix": {
+          "type": "string",
+          "default": "File:",
+          "description": "Prefix added before copied file paths. Leave empty to output no File: prefix."
+        },
+        "copyExtra.fileSuffix": {
+          "type": "string",
+          "default": "行",
+          "description": "Suffix added after copied editor line ranges. Leave empty to output no line suffix."
+        },
+        "copyExtra.pathPrefix": {
+          "type": "string",
+          "default": "Path:",
+          "description": "Prefix added before copied folder paths in Explorer. Leave empty to output no Path: prefix."
+        },
         "copyExtra.windowsCopyPathFormat": {
           "type": "string",
           "default": "default",

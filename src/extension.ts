@@ -1,5 +1,10 @@
 import * as vscode from "vscode";
-import { buildEditorCopyContent, CopyMode, resolveResourceDisplayPath } from "./copyFormatter";
+import {
+  buildEditorCopyContent,
+  CopyMode,
+  resolveCopyTextFormatOptions,
+  resolveResourceDisplayPath
+} from "./copyFormatter";
 import { buildExplorerCopyContentFromEntries, type ExplorerCopyEntry, type ExplorerResourcePrefix } from "./copyLogic";
 
 interface RegisteredCommand {
@@ -108,7 +113,7 @@ async function buildExplorerCopyContent(
   const entries = await Promise.all(
     resources.map((selectedResource) => buildExplorerCopyEntry(selectedResource, useRelativePath))
   );
-  return buildExplorerCopyContentFromEntries(entries);
+  return buildExplorerCopyContentFromEntries(entries, resolveCopyTextFormatOptions());
 }
 
 async function buildExplorerCopyEntry(resource: vscode.Uri, useRelativePath: boolean): Promise<ExplorerCopyEntry> {

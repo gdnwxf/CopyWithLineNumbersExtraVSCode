@@ -25,12 +25,25 @@ export interface ExplorerCopyEntry {
   readonly displayPath: string;
 }
 
+export interface CopyTextFormatOptions {
+  readonly filePrefix: string;
+  readonly fileSuffix: string;
+  readonly pathPrefix: string;
+}
+
+export const DEFAULT_COPY_TEXT_FORMAT_OPTIONS: CopyTextFormatOptions = {
+  filePrefix: "File:",
+  fileSuffix: "行",
+  pathPrefix: "Path:"
+} as const;
+
 export function buildCopyContent(
   filePath: string,
   snapshot: SelectionSnapshot,
-  mode: CopyMode
+  mode: CopyMode,
+  formatOptions: CopyTextFormatOptions = DEFAULT_COPY_TEXT_FORMAT_OPTIONS
 ): string {
-  const header = buildFileHeader(filePath, snapshot.startLine, snapshot.endLine);
+  const header = buildFileHeader(filePath, snapshot.startLine, snapshot.endLine, formatOptions);
 
   switch (mode) {
     case CopyMode.FullPathAndLineRangeOnly:
@@ -118,14 +131,22 @@ export function formatSelectedTextWithLineNumbers(selectedText: string, startLin
     .concat(selectedLines.length > 0 ? "\n" : "");
 }
 
-export function buildFileHeader(filePath: string, startLine: number, endLine: number): string {
+export function buildFileHeader(
+  filePath: string,
+  startLine: number,
+  endLine: number,
+  formatOptions: CopyTextFormatOptions = DEFAULT_COPY_TEXT_FORMAT_OPTIONS
+): string {
   const lineRange = startLine === endLine
     ? `${startLine + 1}`
     : `${startLine + 1}-${endLine + 1}`;
-  return `File: ${filePath}:${lineRange} 行\n`;
+  return `${formatPrefix(formatOptions.filePrefix)}${filePath}:${lineRange}${formatSuffix(formatOptions.fileSuffix)}\n`;
 }
 
-export function buildExplorerCopyContentFromEntries(entries: readonly ExplorerCopyEntry[]): string {
+export function buildExplorerCopyContentFromEntries(
+  entries: readonly ExplorerCopyEntry[],
+  formatOptions: CopyTextFormatOptions = DEFAULT_COPY_TEXT_FORMAT_OPTIONS
+): string {
   const groupedPaths = new Map<ExplorerResourcePrefix, string[]>();
 
   for (const entry of entries) {
@@ -139,8 +160,31 @@ export function buildExplorerCopyContentFromEntries(entries: readonly ExplorerCo
   }
 
   return Array.from(groupedPaths.entries())
-    .map(([prefix, paths]) => `${prefix} ${paths.join(",")}`)
+    .map(([prefix, paths]) => `${formatExplorerPrefix(prefix, formatOptions)}${paths.join(",")}`)
     .join("\n");
+}
+
+function formatExplorerPrefix(
+  prefix: ExplorerResourcePrefix,
+  formatOptions: CopyTextFormatOptions
+): string {
+  return formatPrefix(prefix === "Path:" ? formatOptions.pathPrefix : formatOptions.filePrefix);
+}
+
+function formatPrefix(prefix: string): string {
+  if (prefix.length === 0) {
+    return "";
+  }
+
+  return /\s$/.test(prefix) ? prefix : `${prefix} `;
+}
+
+function formatSuffix(suffix: string): string {
+  if (suffix.length === 0) {
+    return "";
+  }
+
+  return /^\s/.test(suffix) ? suffix : ` ${suffix}`;
 }
 
 function computeLineNumberAt(text: string, offset: number): number {
