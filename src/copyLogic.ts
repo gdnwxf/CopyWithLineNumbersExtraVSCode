@@ -2,6 +2,7 @@ export enum CopyMode {
   FullPathLineNumbersSelected = "fullPathLineNumbersSelected",
   RelativePathLineNumbersSelected = "relativePathLineNumbersSelected",
   FullPathLineRangeSelected = "fullPathLineRangeSelected",
+  FullPathLineRangeScopeSelected = "fullPathLineRangeScopeSelected",
   RelativePathLineRangeSelected = "relativePathLineRangeSelected",
   FullPathAndLineRangeOnly = "fullPathAndLineRangeOnly",
   RelativePathAndLineRangeOnly = "relativePathAndLineRangeOnly",
@@ -15,6 +16,7 @@ export interface SelectionSnapshot {
   readonly selectedText: string;
   readonly startLine: number;
   readonly endLine: number;
+  readonly lineCount: number;
   readonly touchedLineText: string;
 }
 
@@ -29,12 +31,16 @@ export interface CopyTextFormatOptions {
   readonly filePrefix: string;
   readonly fileSuffix: string;
   readonly pathPrefix: string;
+  readonly scopeSelectedBeforeLineCount: number;
+  readonly scopeSelectedAfterLineCount: number;
 }
 
 export const DEFAULT_COPY_TEXT_FORMAT_OPTIONS: CopyTextFormatOptions = {
   filePrefix: "File:",
   fileSuffix: "行",
-  pathPrefix: "Path:"
+  pathPrefix: "Path:",
+  scopeSelectedBeforeLineCount: 5,
+  scopeSelectedAfterLineCount: 5
 } as const;
 
 export function buildCopyContent(
@@ -52,6 +58,8 @@ export function buildCopyContent(
     case CopyMode.FullPathLineRangeSelected:
     case CopyMode.RelativePathLineRangeSelected:
       return `${header}${snapshot.selectedText}`;
+    case CopyMode.FullPathLineRangeScopeSelected:
+      return buildScopeSelectedCopyContent(filePath, snapshot, formatOptions);
     case CopyMode.FullPathLineNumbersSelected:
     case CopyMode.RelativePathLineNumbersSelected:
       return `${header}${formatSelectedTextWithLineNumbers(snapshot.selectedText, snapshot.startLine)}`;
@@ -62,6 +70,19 @@ export function buildCopyContent(
     case CopyMode.RelativePathLineRange:
       return `${header}${snapshot.touchedLineText}`;
   }
+}
+
+function buildScopeSelectedCopyContent(
+  filePath: string,
+  snapshot: SelectionSnapshot,
+  formatOptions: CopyTextFormatOptions
+): string {
+  const scopeStartLine = Math.max(0, snapshot.startLine - formatOptions.scopeSelectedBeforeLineCount);
+  const scopeEndLine = Math.min(
+    snapshot.lineCount - 1,
+    snapshot.endLine + formatOptions.scopeSelectedAfterLineCount
+  );
+  return `${buildFileHeader(filePath, scopeStartLine, scopeEndLine, formatOptions)}${snapshot.selectedText}`;
 }
 
 export function resolveSelectedEndLine(

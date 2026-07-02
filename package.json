@@ -2,7 +2,7 @@
   "name": "copy-extra-by-qinghao-plus",
   "displayName": "Copy Extra By QingHao Plus",
   "description": "Copy selected code in VS Code with file paths, line ranges, and line numbers.",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "publisher": "gdnwxf",
   "license": "GPL-3.0-only",
   "repository": {
@@ -16,16 +16,17 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:copyExtra.copyRelativePathAndLineRangeOnly",
     "onCommand:copyExtra.copyFullPathAndLineRangeOnly",
-    "onCommand:copyExtra.copyRelativePathLineRangeSelected",
-    "onCommand:copyExtra.copyRelativePathLineNumbersSelected",
+    "onCommand:copyExtra.copyRelativePathAndLineRangeOnly",
+    "onCommand:copyExtra.copyFullPathLineRangeScopeSelected",
     "onCommand:copyExtra.copyFullPathLineRangeSelected",
     "onCommand:copyExtra.copyFullPathLineNumbersSelected",
-    "onCommand:copyExtra.copyRelativePathLineRange",
-    "onCommand:copyExtra.copyRelativePathLineNumbers",
+    "onCommand:copyExtra.copyRelativePathLineRangeSelected",
+    "onCommand:copyExtra.copyRelativePathLineNumbersSelected",
     "onCommand:copyExtra.copyFullPathLineRange",
     "onCommand:copyExtra.copyFullPathLineNumbers",
+    "onCommand:copyExtra.copyRelativePathLineRange",
+    "onCommand:copyExtra.copyRelativePathLineNumbers",
     "onCommand:copyExtra.copyExplorerRelativePath",
     "onCommand:copyExtra.copyExplorerFullPath"
   ],
@@ -43,23 +44,18 @@
     ],
     "commands": [
       {
-        "command": "copyExtra.copyRelativePathAndLineRangeOnly",
-        "title": "Copy Relative Path Line Range Only",
-        "category": "Copy Extra"
-      },
-      {
         "command": "copyExtra.copyFullPathAndLineRangeOnly",
         "title": "Copy Full Path and Line Range Only",
         "category": "Copy Extra"
       },
       {
-        "command": "copyExtra.copyRelativePathLineRangeSelected",
-        "title": "Copy Relative Path Line Range Selected",
+        "command": "copyExtra.copyRelativePathAndLineRangeOnly",
+        "title": "Copy Relative Path Line Range Only",
         "category": "Copy Extra"
       },
       {
-        "command": "copyExtra.copyRelativePathLineNumbersSelected",
-        "title": "Copy Relative Path Line Numbers Selected",
+        "command": "copyExtra.copyFullPathLineRangeScopeSelected",
+        "title": "Copy Full Path Line Range Scope Selected",
         "category": "Copy Extra"
       },
       {
@@ -73,13 +69,13 @@
         "category": "Copy Extra"
       },
       {
-        "command": "copyExtra.copyRelativePathLineRange",
-        "title": "Copy Relative Path Line Range",
+        "command": "copyExtra.copyRelativePathLineRangeSelected",
+        "title": "Copy Relative Path Line Range Selected",
         "category": "Copy Extra"
       },
       {
-        "command": "copyExtra.copyRelativePathLineNumbers",
-        "title": "Copy Relative Path Line Numbers",
+        "command": "copyExtra.copyRelativePathLineNumbersSelected",
+        "title": "Copy Relative Path Line Numbers Selected",
         "category": "Copy Extra"
       },
       {
@@ -90,6 +86,16 @@
       {
         "command": "copyExtra.copyFullPathLineNumbers",
         "title": "Copy Full Path Line Numbers",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyRelativePathLineRange",
+        "title": "Copy Relative Path Line Range",
+        "category": "Copy Extra"
+      },
+      {
+        "command": "copyExtra.copyRelativePathLineNumbers",
+        "title": "Copy Relative Path Line Numbers",
         "category": "Copy Extra"
       },
       {
@@ -106,21 +112,6 @@
     "configuration": {
       "title": "Copy Extra",
       "properties": {
-        "copyExtra.filePrefix": {
-          "type": "string",
-          "default": "File:",
-          "description": "Prefix added before copied file paths. Leave empty to output no File: prefix."
-        },
-        "copyExtra.fileSuffix": {
-          "type": "string",
-          "default": "行",
-          "description": "Suffix added after copied editor line ranges. Leave empty to output no line suffix."
-        },
-        "copyExtra.pathPrefix": {
-          "type": "string",
-          "default": "Path:",
-          "description": "Prefix added before copied folder paths in Explorer. Leave empty to output no Path: prefix."
-        },
         "copyExtra.windowsCopyPathFormat": {
           "type": "string",
           "default": "default",
@@ -141,6 +132,33 @@
             "Git Bash (/d/llama.cpp)"
           ],
           "description": "Controls copied full paths and relative path separators on Windows. macOS, Linux, and Unix use the default VS Code path format."
+        },
+        "copyExtra.pathPrefix": {
+          "type": "string",
+          "default": "Path:",
+          "description": "Prefix added before copied folder paths in Explorer. Leave empty to output no Path: prefix."
+        },
+        "copyExtra.filePrefix": {
+          "type": "string",
+          "default": "File:",
+          "description": "Prefix added before copied file paths. Leave empty to output no File: prefix."
+        },
+        "copyExtra.fileSuffix": {
+          "type": "string",
+          "default": "行",
+          "description": "Suffix added after copied editor line ranges. Leave empty to output no line suffix."
+        },
+        "copyExtra.scopeSelectedBeforeLineCount": {
+          "type": "number",
+          "default": 5,
+          "minimum": 0,
+          "description": "Number of lines before the selection included in the line range header for Copy Full Path Line Range Scope Selected."
+        },
+        "copyExtra.scopeSelectedAfterLineCount": {
+          "type": "number",
+          "default": 5,
+          "minimum": 0,
+          "description": "Number of lines after the selection included in the line range header for Copy Full Path Line Range Scope Selected."
         }
       }
     },
@@ -161,53 +179,58 @@
       ],
       "copyExtra.editorContext": [
         {
-          "command": "copyExtra.copyRelativePathAndLineRangeOnly",
+          "command": "copyExtra.copyFullPathAndLineRangeOnly",
           "group": "1_rangeOnly@1",
           "when": "editorTextFocus"
         },
         {
-          "command": "copyExtra.copyFullPathAndLineRangeOnly",
+          "command": "copyExtra.copyRelativePathAndLineRangeOnly",
           "group": "1_rangeOnly@2",
           "when": "editorTextFocus"
         },
         {
-          "command": "copyExtra.copyRelativePathLineRangeSelected",
-          "group": "2_selected@1",
-          "when": "editorTextFocus && editorHasSelection"
-        },
-        {
-          "command": "copyExtra.copyRelativePathLineNumbersSelected",
-          "group": "2_selected@2",
+          "command": "copyExtra.copyFullPathLineRangeScopeSelected",
+          "group": "2_scope@1",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyFullPathLineRangeSelected",
-          "group": "2_selected@3",
+          "group": "3_selected@1",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyFullPathLineNumbersSelected",
-          "group": "2_selected@4",
+          "group": "3_selected@2",
           "when": "editorTextFocus && editorHasSelection"
         },
         {
-          "command": "copyExtra.copyRelativePathLineRange",
-          "group": "3_fullLines@1",
-          "when": "editorTextFocus"
+          "command": "copyExtra.copyRelativePathLineRangeSelected",
+          "group": "3_selected@3",
+          "when": "editorTextFocus && editorHasSelection"
         },
         {
-          "command": "copyExtra.copyRelativePathLineNumbers",
-          "group": "3_fullLines@2",
-          "when": "editorTextFocus"
+          "command": "copyExtra.copyRelativePathLineNumbersSelected",
+          "group": "3_selected@4",
+          "when": "editorTextFocus && editorHasSelection"
         },
         {
           "command": "copyExtra.copyFullPathLineRange",
-          "group": "3_fullLines@3",
+          "group": "4_fullLines@1",
           "when": "editorTextFocus"
         },
         {
           "command": "copyExtra.copyFullPathLineNumbers",
-          "group": "3_fullLines@4",
+          "group": "4_fullLines@2",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "copyExtra.copyRelativePathLineRange",
+          "group": "4_fullLines@3",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "copyExtra.copyRelativePathLineNumbers",
+          "group": "4_fullLines@4",
           "when": "editorTextFocus"
         }
       ],
@@ -232,10 +255,10 @@
         "when": "explorerResourceIsFile || explorerResourceIsFolder"
       },
       {
-        "command": "copyExtra.copyFullPathAndLineRangeOnly",
+        "command": "copyExtra.copyFullPathLineRangeScopeSelected",
         "key": "ctrl+shift+c",
         "mac": "cmd+shift+c",
-        "when": "editorTextFocus"
+        "when": "editorTextFocus && editorHasSelection"
       }
     ]
   },

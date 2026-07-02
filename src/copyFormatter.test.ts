@@ -41,7 +41,13 @@ test("buildFileHeader formats single-line and multi-line ranges", () => {
 
 test("buildFileHeader supports empty prefix and suffix", () => {
   assert.equal(
-    buildFileHeader("/tmp/a.ts", 4, 6, { filePrefix: "", fileSuffix: "", pathPrefix: "Path:" }),
+    buildFileHeader("/tmp/a.ts", 4, 6, {
+      filePrefix: "",
+      fileSuffix: "",
+      pathPrefix: "Path:",
+      scopeSelectedBeforeLineCount: 5,
+      scopeSelectedAfterLineCount: 5
+    }),
     "/tmp/a.ts:5-7\n"
   );
 });
@@ -54,6 +60,7 @@ test("buildCopyContent prefixes header and line numbers for selected text", () =
         selectedText: "foo\nbar",
         startLine: 1,
         endLine: 2,
+        lineCount: 3,
         touchedLineText: "foo\nbar"
       },
       CopyMode.RelativePathLineNumbersSelected
@@ -70,11 +77,53 @@ test("buildCopyContent prefixes header and line numbers for touched full lines",
         selectedText: "oo\nba",
         startLine: 1,
         endLine: 2,
+        lineCount: 3,
         touchedLineText: "foo\nbar"
       },
       CopyMode.FullPathLineNumbers
     ),
     "File: src/a.ts:2-3 行\n    2: foo\n    3: bar\n"
+  );
+});
+
+test("buildCopyContent expands scope header while copying selected text only", () => {
+  assert.equal(
+    buildCopyContent(
+      "/tmp/a.ts",
+      {
+        selectedText: "line4\nline5",
+        startLine: 3,
+        endLine: 4,
+        lineCount: 20,
+        touchedLineText: "line4\nline5"
+      },
+      CopyMode.FullPathLineRangeScopeSelected
+    ),
+    "File: /tmp/a.ts:1-10 行\nline4\nline5"
+  );
+});
+
+test("buildCopyContent scope selected falls back to selected range when configured as zero", () => {
+  assert.equal(
+    buildCopyContent(
+      "/tmp/a.ts",
+      {
+        selectedText: "line4\nline5",
+        startLine: 3,
+        endLine: 4,
+        lineCount: 20,
+        touchedLineText: "line4\nline5"
+      },
+      CopyMode.FullPathLineRangeScopeSelected,
+      {
+        filePrefix: "File:",
+        fileSuffix: "行",
+        pathPrefix: "Path:",
+        scopeSelectedBeforeLineCount: 0,
+        scopeSelectedAfterLineCount: 0
+      }
+    ),
+    "File: /tmp/a.ts:4-5 行\nline4\nline5"
   );
 });
 
@@ -104,7 +153,13 @@ test("buildExplorerCopyContentFromEntries supports empty file and path prefixes"
     buildExplorerCopyContentFromEntries([
       { prefix: "Path:", displayPath: "src" },
       { prefix: "File:", displayPath: "package.json" }
-    ], { filePrefix: "", fileSuffix: "行", pathPrefix: "" }),
+    ], {
+      filePrefix: "",
+      fileSuffix: "行",
+      pathPrefix: "",
+      scopeSelectedBeforeLineCount: 5,
+      scopeSelectedAfterLineCount: 5
+    }),
     "src\npackage.json"
   );
 });

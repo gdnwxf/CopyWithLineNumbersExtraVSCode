@@ -18,16 +18,17 @@ interface RegisteredExplorerCommand {
 }
 
 const REGISTERED_COMMANDS: readonly RegisteredCommand[] = [
-  { id: "copyExtra.copyRelativePathAndLineRangeOnly", mode: CopyMode.RelativePathAndLineRangeOnly },
   { id: "copyExtra.copyFullPathAndLineRangeOnly", mode: CopyMode.FullPathAndLineRangeOnly },
-  { id: "copyExtra.copyRelativePathLineRangeSelected", mode: CopyMode.RelativePathLineRangeSelected },
-  { id: "copyExtra.copyRelativePathLineNumbersSelected", mode: CopyMode.RelativePathLineNumbersSelected },
+  { id: "copyExtra.copyRelativePathAndLineRangeOnly", mode: CopyMode.RelativePathAndLineRangeOnly },
+  { id: "copyExtra.copyFullPathLineRangeScopeSelected", mode: CopyMode.FullPathLineRangeScopeSelected },
   { id: "copyExtra.copyFullPathLineRangeSelected", mode: CopyMode.FullPathLineRangeSelected },
   { id: "copyExtra.copyFullPathLineNumbersSelected", mode: CopyMode.FullPathLineNumbersSelected },
-  { id: "copyExtra.copyRelativePathLineRange", mode: CopyMode.RelativePathLineRange },
-  { id: "copyExtra.copyRelativePathLineNumbers", mode: CopyMode.RelativePathLineNumbers },
+  { id: "copyExtra.copyRelativePathLineRangeSelected", mode: CopyMode.RelativePathLineRangeSelected },
+  { id: "copyExtra.copyRelativePathLineNumbersSelected", mode: CopyMode.RelativePathLineNumbersSelected },
   { id: "copyExtra.copyFullPathLineRange", mode: CopyMode.FullPathLineRange },
-  { id: "copyExtra.copyFullPathLineNumbers", mode: CopyMode.FullPathLineNumbers }
+  { id: "copyExtra.copyFullPathLineNumbers", mode: CopyMode.FullPathLineNumbers },
+  { id: "copyExtra.copyRelativePathLineRange", mode: CopyMode.RelativePathLineRange },
+  { id: "copyExtra.copyRelativePathLineNumbers", mode: CopyMode.RelativePathLineNumbers }
 ] as const;
 
 const REGISTERED_EXPLORER_COMMANDS: readonly RegisteredExplorerCommand[] = [
@@ -80,6 +81,7 @@ function requiresSelection(mode: CopyMode): boolean {
   return mode === CopyMode.RelativePathLineRangeSelected
     || mode === CopyMode.RelativePathLineNumbersSelected
     || mode === CopyMode.FullPathLineRangeSelected
+    || mode === CopyMode.FullPathLineRangeScopeSelected
     || mode === CopyMode.FullPathLineNumbersSelected;
 }
 

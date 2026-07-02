@@ -19,6 +19,8 @@ export { CopyMode } from "./copyLogic";
 export const FILE_PREFIX_CONFIG_KEY = "copyExtra.filePrefix";
 export const FILE_SUFFIX_CONFIG_KEY = "copyExtra.fileSuffix";
 export const PATH_PREFIX_CONFIG_KEY = "copyExtra.pathPrefix";
+export const SCOPE_SELECTED_BEFORE_LINE_COUNT_CONFIG_KEY = "copyExtra.scopeSelectedBeforeLineCount";
+export const SCOPE_SELECTED_AFTER_LINE_COUNT_CONFIG_KEY = "copyExtra.scopeSelectedAfterLineCount";
 
 export function buildEditorCopyContent(
   document: vscode.TextDocument,
@@ -47,6 +49,7 @@ export function createSelectionSnapshot(
     selectedText,
     startLine,
     endLine,
+    lineCount: document.lineCount,
     touchedLineText
   };
 }
@@ -77,7 +80,15 @@ export function resolveCopyTextFormatOptions(): CopyTextFormatOptions {
   return {
     filePrefix: configuration.get<string>(FILE_PREFIX_CONFIG_KEY, "File:"),
     fileSuffix: configuration.get<string>(FILE_SUFFIX_CONFIG_KEY, "行"),
-    pathPrefix: configuration.get<string>(PATH_PREFIX_CONFIG_KEY, "Path:")
+    pathPrefix: configuration.get<string>(PATH_PREFIX_CONFIG_KEY, "Path:"),
+    scopeSelectedBeforeLineCount: Math.max(
+      0,
+      configuration.get<number>(SCOPE_SELECTED_BEFORE_LINE_COUNT_CONFIG_KEY, 5)
+    ),
+    scopeSelectedAfterLineCount: Math.max(
+      0,
+      configuration.get<number>(SCOPE_SELECTED_AFTER_LINE_COUNT_CONFIG_KEY, 5)
+    )
   };
 }
 
