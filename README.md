@@ -5,6 +5,7 @@ VS Code extension that ports the editor copy behaviors from the IntelliJ plugin:
 - Copy selected code with line numbers and full path
 - Copy selected code with line numbers and relative path
 - Copy only file path and selected line range
+- Copy selected code with an expanded full-path line range header
 - Copy the touched full lines with `File: ...:start-end 行` header
 - Default shortcut aligned with the original plugin: `Ctrl+Shift+C` / `Cmd+Shift+C`
 
@@ -16,29 +17,43 @@ In the editor context menu, the commands are grouped under a top-level submenu:
 
 ## Commands
 
-- `Copy Relative Path Line Range Only`
 - `Copy Full Path and Line Range Only`
-- `Copy Relative Path Line Range Selected`
-- `Copy Relative Path Line Numbers Selected`
+- `Copy Relative Path Line Range Only`
+- `Copy Full Path Line Range Scope Selected`
 - `Copy Full Path Line Range Selected`
 - `Copy Full Path Line Numbers Selected`
-- `Copy Relative Path Line Range`
-- `Copy Relative Path Line Numbers`
+- `Copy Relative Path Line Range Selected`
+- `Copy Relative Path Line Numbers Selected`
 - `Copy Full Path Line Range`
 - `Copy Full Path Line Numbers`
+- `Copy Relative Path Line Range`
+- `Copy Relative Path Line Numbers`
+
+`Copy Full Path Line Range Scope Selected` copies the selected code text only, while the header line range expands around the selection. The before/after line counts are configurable and default to 5 lines before and 5 lines after the selection.
+
+## Settings
+
+Configure under VS Code `Settings`:
+
+- `copyExtra.windowsCopyPathFormat`: Windows-only full path output format. macOS, Linux, and Unix use the default VS Code path format.
+- `copyExtra.pathPrefix`: Prefix used for copied folders in Explorer. Default: `Path:`.
+- `copyExtra.filePrefix`: Prefix used before copied file paths. Default: `File:`.
+- `copyExtra.fileSuffix`: Suffix used after editor line ranges. Default: `行`.
+- `copyExtra.scopeSelectedBeforeLineCount`: Number of lines before the selection included in the `Copy Full Path Line Range Scope Selected` header. Default: `5`.
+- `copyExtra.scopeSelectedAfterLineCount`: Number of lines after the selection included in the `Copy Full Path Line Range Scope Selected` header. Default: `5`.
 
 ## Shortcut
 
 - `Ctrl+Shift+C` on Windows/Linux
 - `Cmd+Shift+C` on macOS
 
-This shortcut runs `Copy Full Path Line Range Selected`.
+This shortcut runs `Copy Full Path Line Range Scope Selected`.
 
 ## Install
 
 Install the packaged extension from:
 
-- `copy-extra-by-qinghao-0.0.1.vsix`
+- `copy-extra-by-qinghao-plus-0.0.9.vsix`
 
 In VS Code:
 
@@ -51,7 +66,7 @@ In VS Code:
 Command line:
 
 ```bash
-code --install-extension /Users/wch/opensource/CopyWithLineNumbersExtraVSCode/copy-extra-by-qinghao-0.0.1.vsix
+code --install-extension /mnt/d/abc/CopyWithLineNumbersExtraVSCode/copy-extra-by-qinghao-plus-0.0.9.vsix
 ```
 
 ## Development
