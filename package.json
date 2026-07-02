@@ -2,7 +2,7 @@
   "name": "copy-extra-by-qinghao-plus",
   "displayName": "Copy Extra By QingHao Plus",
   "description": "Copy selected code in VS Code with file paths, line ranges, and line numbers.",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "publisher": "gdnwxf",
   "license": "GPL-3.0-only",
   "repository": {
@@ -236,12 +236,12 @@
       ],
       "copyExtra.explorerContext": [
         {
-          "command": "copyExtra.copyExplorerRelativePath",
+          "command": "copyExtra.copyExplorerFullPath",
           "group": "1_path@1",
           "when": "resourceScheme == file"
         },
         {
-          "command": "copyExtra.copyExplorerFullPath",
+          "command": "copyExtra.copyExplorerRelativePath",
           "group": "1_path@2",
           "when": "resourceScheme == file"
         }
