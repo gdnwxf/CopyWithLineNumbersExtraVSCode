@@ -2,7 +2,7 @@
   "name": "copy-extra-by-qinghao-plus",
   "displayName": "Copy Extra By QingHao Plus",
   "description": "Copy selected code in VS Code with file paths, line ranges, and line numbers.",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "publisher": "gdnwxf",
   "license": "GPL-3.0-only",
   "repository": {
@@ -113,6 +113,7 @@
       "title": "Copy Extra",
       "properties": {
         "copyExtra.windowsCopyPathFormat": {
+          "order": 1,
           "type": "string",
           "default": "default",
           "enum": [
@@ -134,27 +135,32 @@
           "description": "Controls copied full paths and relative path separators on Windows. macOS, Linux, and Unix use the default VS Code path format."
         },
         "copyExtra.pathPrefix": {
+          "order": 2,
           "type": "string",
           "default": "Path:",
           "description": "Prefix added before copied folder paths in Explorer. Leave empty to output no Path: prefix."
         },
         "copyExtra.filePrefix": {
+          "order": 3,
           "type": "string",
           "default": "File:",
           "description": "Prefix added before copied file paths. Leave empty to output no File: prefix."
         },
         "copyExtra.fileSuffix": {
+          "order": 4,
           "type": "string",
           "default": "行",
           "description": "Suffix added after copied editor line ranges. Leave empty to output no line suffix."
         },
         "copyExtra.scopeSelectedBeforeLineCount": {
+          "order": 5,
           "type": "number",
           "default": 5,
           "minimum": 0,
           "description": "Number of lines before the selection included in the line range header for Copy Full Path Line Range Scope Selected."
         },
         "copyExtra.scopeSelectedAfterLineCount": {
+          "order": 6,
           "type": "number",
           "default": 5,
           "minimum": 0,
