@@ -2,7 +2,7 @@
   "name": "copy-extra-by-qinghao-plus",
   "displayName": "Copy Extra By QingHao Plus",
   "description": "Copy selected code in VS Code with file paths, line ranges, and line numbers.",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "publisher": "gdnwxf",
   "license": "GPL-3.0-only",
   "repository": {
@@ -174,6 +174,48 @@
         {
           "submenu": "copyExtra.explorerContext",
           "group": "navigation@1",
+          "when": "explorerResourceIsFile || explorerResourceIsFolder"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "submenu": "copyExtra.explorerContext",
+          "group": "6_copypath@1",
+          "when": "resourceScheme == file"
+        }
+      ],
+      "scm/resourceState/context": [
+        {
+          "submenu": "copyExtra.explorerContext",
+          "group": "navigation@1"
+        },
+        {
+          "command": "copyExtra.copyExplorerFullPath",
+          "group": "navigation@2"
+        },
+        {
+          "command": "copyExtra.copyExplorerRelativePath",
+          "group": "navigation@3"
+        }
+      ],
+      "scm/resourceFolder/context": [
+        {
+          "submenu": "copyExtra.explorerContext",
+          "group": "navigation@1"
+        },
+        {
+          "command": "copyExtra.copyExplorerFullPath",
+          "group": "navigation@2"
+        },
+        {
+          "command": "copyExtra.copyExplorerRelativePath",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "submenu": "copyExtra.explorerContext",
+          "group": "navigation@1",
           "when": "resourceScheme == file"
         }
       ],
@@ -237,13 +279,11 @@
       "copyExtra.explorerContext": [
         {
           "command": "copyExtra.copyExplorerFullPath",
-          "group": "1_path@1",
-          "when": "resourceScheme == file"
+          "group": "1_path@1"
         },
         {
           "command": "copyExtra.copyExplorerRelativePath",
-          "group": "1_path@2",
-          "when": "resourceScheme == file"
+          "group": "1_path@2"
         }
       ]
     },

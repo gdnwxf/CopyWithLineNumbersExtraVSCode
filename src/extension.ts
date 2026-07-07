@@ -56,8 +56,8 @@ export function activate(context: vscode.ExtensionContext): void {
   for (const command of REGISTERED_EXPLORER_COMMANDS) {
     context.subscriptions.push(
       vscode.commands.registerCommand(command.id, async (
-        resource: vscode.Uri | undefined,
-        selectedResources: readonly vscode.Uri[] | undefined
+        resource: unknown,
+        selectedResources: readonly unknown[] | undefined
       ) => {
         const resources = resolveExplorerResources(resource, selectedResources);
         if (resources.length === 0) {
@@ -86,12 +86,19 @@ function requiresSelection(mode: CopyMode): boolean {
 }
 
 function resolveExplorerResources(
-  resource: vscode.Uri | undefined,
-  selectedResources: readonly vscode.Uri[] | undefined
+  resource: unknown,
+  selectedResources: readonly unknown[] | undefined
 ): readonly vscode.Uri[] {
-  const resources = selectedResources && selectedResources.length > 0
-    ? selectedResources
-    : resource ? [resource] : [];
+  const selectedResourceUris = selectedResources
+    ? selectedResources.flatMap((selectedResource) => {
+      const uri = resolveResourceUri(selectedResource);
+      return uri ? [uri] : [];
+    })
+    : [];
+  const directResourceUri = resolveResourceUri(resource);
+  const resources = selectedResourceUris.length > 0
+    ? selectedResourceUris
+    : directResourceUri ? [directResourceUri] : [];
   const seenResourceKeys = new Set<string>();
   const uniqueResources: vscode.Uri[] = [];
 
@@ -106,6 +113,32 @@ function resolveExplorerResources(
   }
 
   return uniqueResources;
+}
+
+function resolveResourceUri(resource: unknown): vscode.Uri | undefined {
+  if (resource instanceof vscode.Uri) {
+    return resource;
+  }
+
+  if (!isRecord(resource)) {
+    return undefined;
+  }
+
+  const resourceUri = resource.resourceUri;
+  if (resourceUri instanceof vscode.Uri) {
+    return resourceUri;
+  }
+
+  const uri = resource.uri;
+  if (uri instanceof vscode.Uri) {
+    return uri;
+  }
+
+  return undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 async function buildExplorerCopyContent(
