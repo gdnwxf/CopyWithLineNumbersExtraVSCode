@@ -42,12 +42,7 @@ const REGISTERED_SCM_FOLDER_COMMANDS: readonly RegisteredExplorerCommand[] = [
   { id: "copyExtra.copyScmFolderFullPath", useRelativePath: false }
 ] as const;
 
-let diagnosticChannel: vscode.OutputChannel | undefined;
-
 export function activate(context: vscode.ExtensionContext): void {
-  diagnosticChannel = vscode.window.createOutputChannel("Copy Extra Diagnostics");
-  context.subscriptions.push(diagnosticChannel);
-
   for (const command of REGISTERED_COMMANDS) {
     context.subscriptions.push(
       vscode.commands.registerTextEditorCommand(command.id, async (editor) => {
@@ -70,7 +65,6 @@ export function activate(context: vscode.ExtensionContext): void {
         resource: unknown,
         selectedResources: readonly unknown[] | undefined
       ) => {
-        diagnoseCommandInput(command.id, resource, selectedResources);
         const resources = resolveExplorerResources(resource, selectedResources);
         await copyResourcesToClipboard(resources, command.useRelativePath);
       })
@@ -83,7 +77,6 @@ export function activate(context: vscode.ExtensionContext): void {
         resource: unknown,
         selectedResources: readonly unknown[] | undefined
       ) => {
-        diagnoseCommandInput(command.id, resource, selectedResources);
         const folderUri = resolveFolderResourceUri(resource, selectedResources);
         const resources = folderUri ? [folderUri] : [];
         await copyResourcesToClipboard(resources, command.useRelativePath);
@@ -108,43 +101,6 @@ async function copyResourcesToClipboard(
   const content = await buildExplorerCopyContent(resources, useRelativePath);
   await vscode.env.clipboard.writeText(content);
   void vscode.window.setStatusBarMessage("Copy Extra copied to clipboard.", 2000);
-}
-
-function diagnoseCommandInput(
-  commandId: string,
-  resource: unknown,
-  selectedResources: readonly unknown[] | undefined
-): void {
-  if (!diagnosticChannel) {
-    return;
-  }
-
-  diagnosticChannel.appendLine(`[${new Date().toISOString()}] ${commandId}`);
-  diagnosticChannel.appendLine(`  resource: ${describeInputValue(resource)}`);
-  diagnosticChannel.appendLine(`  selectedResources: ${describeInputValue(selectedResources)}`);
-  diagnosticChannel.show(true);
-}
-
-function describeInputValue(value: unknown): string {
-  if (value === undefined) {
-    return "undefined";
-  }
-  if (value === null) {
-    return "null";
-  }
-  if (value instanceof vscode.Uri) {
-    return `Uri("${value.fsPath}")`;
-  }
-  if (Array.isArray(value)) {
-    const preview = value.slice(0, 3).map(describeInputValue).join(", ");
-    return `Array(len=${value.length})[${preview}${value.length > 3 ? ", ..." : ""}]`;
-  }
-  if (typeof value === "object") {
-    const objectValue = value as Record<string, unknown>;
-    const keys = Object.keys(objectValue);
-    return `Object(ctor=${objectValue.constructor?.name ?? "unknown"}, keys=[${keys.join(", ")}], resourceUri=${describeInputValue(objectValue.resourceUri)}, uri=${describeInputValue(objectValue.uri)}, resourceStates=${describeInputValue(objectValue.resourceStates)})`;
-  }
-  return `${typeof value}("${String(value)}")`;
 }
 
 function requiresSelection(mode: CopyMode): boolean {
@@ -221,38 +177,46 @@ function resolveFolderResourceUri(
   resource: unknown,
   selectedResources: readonly unknown[] | undefined
 ): vscode.Uri | undefined {
-  const directFolderUri = resolveResourceUri(resource);
-  if (directFolderUri) {
-    return directFolderUri;
-  }
+  const folderUris: vscode.Uri[] = [];
+  const fileUris: vscode.Uri[] = [];
 
-  const folderStates = collectFolderResourceStates(resource, selectedResources);
-  const stateUris: vscode.Uri[] = [];
-  for (const state of folderStates) {
-    const uri = resolveResourceUri(state);
-    if (uri) {
-      stateUris.push(uri);
+  const collectFolderInputs = (value: unknown): void => {
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        collectFolderInputs(item);
+      }
+      return;
     }
-  }
-  return inferCommonParentDir(stateUris);
-}
 
-function collectFolderResourceStates(
-  resource: unknown,
-  selectedResources: readonly unknown[] | undefined
-): readonly unknown[] {
-  const states: unknown[] = [];
-  if (Array.isArray(resource)) {
-    states.push(...resource);
-  } else if (isRecord(resource) && Array.isArray(resource.resourceStates)) {
-    states.push(...resource.resourceStates);
+    if (isRecord(value) && Array.isArray(value.resourceStates)) {
+      const folderUri = resolveResourceUri(value);
+      if (folderUri) {
+        folderUris.push(folderUri);
+        return;
+      }
+      for (const state of value.resourceStates) {
+        const stateUri = resolveResourceUri(state);
+        if (stateUri) {
+          fileUris.push(stateUri);
+        }
+      }
+      return;
+    }
+
+    const uri = resolveResourceUri(value);
+    if (uri) {
+      fileUris.push(uri);
+    }
+  };
+
+  collectFolderInputs(resource);
+  collectFolderInputs(selectedResources);
+
+  if (folderUris.length > 0) {
+    return folderUris[0];
   }
 
-  if (Array.isArray(selectedResources)) {
-    states.push(...selectedResources);
-  }
-
-  return states;
+  return inferCommonParentDir(fileUris);
 }
 
 function inferCommonParentDir(uris: readonly vscode.Uri[]): vscode.Uri | undefined {
