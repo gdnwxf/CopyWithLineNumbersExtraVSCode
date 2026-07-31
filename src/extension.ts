@@ -42,7 +42,12 @@ const REGISTERED_SCM_FOLDER_COMMANDS: readonly RegisteredExplorerCommand[] = [
   { id: "copyExtra.copyScmFolderFullPath", useRelativePath: false }
 ] as const;
 
+let diagnosticChannel: vscode.OutputChannel | undefined;
+
 export function activate(context: vscode.ExtensionContext): void {
+  diagnosticChannel = vscode.window.createOutputChannel("Copy Extra Diagnostics");
+  context.subscriptions.push(diagnosticChannel);
+
   for (const command of REGISTERED_COMMANDS) {
     context.subscriptions.push(
       vscode.commands.registerTextEditorCommand(command.id, async (editor) => {
@@ -65,6 +70,7 @@ export function activate(context: vscode.ExtensionContext): void {
         resource: unknown,
         selectedResources: readonly unknown[] | undefined
       ) => {
+        diagnoseCommandInput(command.id, resource, selectedResources);
         const resources = resolveExplorerResources(resource, selectedResources);
         await copyResourcesToClipboard(resources, command.useRelativePath);
       })
@@ -77,6 +83,7 @@ export function activate(context: vscode.ExtensionContext): void {
         resource: unknown,
         selectedResources: readonly unknown[] | undefined
       ) => {
+        diagnoseCommandInput(command.id, resource, selectedResources);
         const folderUri = resolveFolderResourceUri(resource, selectedResources);
         const resources = folderUri ? [folderUri] : [];
         await copyResourcesToClipboard(resources, command.useRelativePath);
@@ -101,6 +108,58 @@ async function copyResourcesToClipboard(
   const content = await buildExplorerCopyContent(resources, useRelativePath);
   await vscode.env.clipboard.writeText(content);
   void vscode.window.setStatusBarMessage("Copy Extra copied to clipboard.", 2000);
+}
+
+function diagnoseCommandInput(
+  commandId: string,
+  resource: unknown,
+  selectedResources: readonly unknown[] | undefined
+): void {
+  if (!diagnosticChannel) {
+    return;
+  }
+
+  diagnosticChannel.appendLine(`[${new Date().toISOString()}] ${commandId}`);
+  diagnosticChannel.appendLine(`  resource: ${describeInputValue(resource)}`);
+  diagnosticChannel.appendLine(`  selectedResources: ${describeInputValue(selectedResources)}`);
+  diagnosticChannel.show(true);
+}
+
+function describeInputValue(value: unknown): string {
+  if (value === undefined) {
+    return "undefined";
+  }
+  if (value === null) {
+    return "null";
+  }
+  if (value instanceof vscode.Uri) {
+    return `Uri("${value.fsPath}")`;
+  }
+  if (Array.isArray(value)) {
+    const preview = value.slice(0, 5).map(describeInputValue).join(", ");
+    return `Array(len=${value.length})[${preview}${value.length > 5 ? ", ..." : ""}]`;
+  }
+  if (typeof value === "object") {
+    const objectValue = value as Record<string, unknown>;
+    const fields: string[] = [];
+    for (const key of Object.keys(objectValue)) {
+      const fieldValue = objectValue[key];
+      if (typeof fieldValue === "function") {
+        continue;
+      }
+      if (fieldValue instanceof vscode.Uri) {
+        fields.push(`${key}=Uri("${fieldValue.fsPath}")`);
+      } else if (Array.isArray(fieldValue)) {
+        fields.push(`${key}=Array(len=${fieldValue.length})`);
+      } else if (typeof fieldValue === "object" && fieldValue !== null) {
+        fields.push(`${key}=${fieldValue.constructor?.name ?? "Object"}`);
+      } else {
+        fields.push(`${key}=${JSON.stringify(fieldValue)}`);
+      }
+    }
+    return `Object(ctor=${objectValue.constructor?.name ?? "unknown"}){${fields.join(", ")}}`;
+  }
+  return `${typeof value}("${String(value)}")`;
 }
 
 function requiresSelection(mode: CopyMode): boolean {
