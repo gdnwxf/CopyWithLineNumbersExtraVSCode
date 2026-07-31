@@ -60,7 +60,7 @@ This shortcut runs `Copy Full Path Line Range Scope Selected`.
 
 Install the packaged extension from:
 
-- `copy-extra-by-qinghao-plus-0.0.20.vsix`
+- `copy-extra-by-qinghao-plus-0.0.21.vsix`
 
 In VS Code:
 
@@ -73,7 +73,7 @@ In VS Code:
 Command line:
 
 ```bash
-code --install-extension /mnt/d/abc/CopyWithLineNumbersExtraVSCode/copy-extra-by-qinghao-plus-0.0.20.vsix
+code --install-extension /mnt/d/abc/CopyWithLineNumbersExtraVSCode/copy-extra-by-qinghao-plus-0.0.21.vsix
 ```
 
 ## Development

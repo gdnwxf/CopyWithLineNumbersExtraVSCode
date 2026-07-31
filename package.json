@@ -2,7 +2,7 @@
   "name": "copy-extra-by-qinghao-plus",
   "displayName": "Copy Extra By QingHao Plus",
   "description": "Copy selected code in VS Code with file paths, line ranges, and line numbers.",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "publisher": "gdnwxf",
   "license": "GPL-3.0-only",
   "repository": {
@@ -28,9 +28,7 @@
     "onCommand:copyExtra.copyRelativePathLineRange",
     "onCommand:copyExtra.copyRelativePathLineNumbers",
     "onCommand:copyExtra.copyExplorerRelativePath",
-    "onCommand:copyExtra.copyExplorerFullPath",
-    "onCommand:copyExtra.copyScmFolderFullPath",
-    "onCommand:copyExtra.copyScmFolderRelativePath"
+    "onCommand:copyExtra.copyExplorerFullPath"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -41,10 +39,6 @@
       },
       {
         "id": "copyExtra.explorerContext",
-        "label": "Copy Extra"
-      },
-      {
-        "id": "copyExtra.scmFolderContext",
         "label": "Copy Extra"
       }
     ],
@@ -112,16 +106,6 @@
       {
         "command": "copyExtra.copyExplorerFullPath",
         "title": "Copy Full Path",
-        "category": "Copy Extra"
-      },
-      {
-        "command": "copyExtra.copyScmFolderFullPath",
-        "title": "Copy Full Path",
-        "category": "Copy Extra"
-      },
-      {
-        "command": "copyExtra.copyScmFolderRelativePath",
-        "title": "Copy Relative Path",
         "category": "Copy Extra"
       }
     ],
@@ -214,7 +198,7 @@
       ],
       "scm/resourceFolder/context": [
         {
-          "submenu": "copyExtra.scmFolderContext",
+          "submenu": "copyExtra.explorerContext",
           "group": "navigation@1"
         }
       ],
@@ -289,16 +273,6 @@
         },
         {
           "command": "copyExtra.copyExplorerRelativePath",
-          "group": "1_path@2"
-        }
-      ],
-      "copyExtra.scmFolderContext": [
-        {
-          "command": "copyExtra.copyScmFolderFullPath",
-          "group": "1_path@1"
-        },
-        {
-          "command": "copyExtra.copyScmFolderRelativePath",
           "group": "1_path@2"
         }
       ]
