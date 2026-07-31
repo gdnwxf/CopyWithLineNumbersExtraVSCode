@@ -1,3 +1,4 @@
+import * as path from "node:path";
 import * as vscode from "vscode";
 import {
   buildEditorCopyContent,
@@ -36,6 +37,11 @@ const REGISTERED_EXPLORER_COMMANDS: readonly RegisteredExplorerCommand[] = [
   { id: "copyExtra.copyExplorerFullPath", useRelativePath: false }
 ] as const;
 
+const REGISTERED_SCM_FOLDER_COMMANDS: readonly RegisteredExplorerCommand[] = [
+  { id: "copyExtra.copyScmFolderRelativePath", useRelativePath: true },
+  { id: "copyExtra.copyScmFolderFullPath", useRelativePath: false }
+] as const;
+
 export function activate(context: vscode.ExtensionContext): void {
   for (const command of REGISTERED_COMMANDS) {
     context.subscriptions.push(
@@ -60,14 +66,20 @@ export function activate(context: vscode.ExtensionContext): void {
         selectedResources: readonly unknown[] | undefined
       ) => {
         const resources = resolveExplorerResources(resource, selectedResources);
-        if (resources.length === 0) {
-          void vscode.window.showInformationMessage("Copy Extra requires a file or folder selection.");
-          return;
-        }
+        await copyResourcesToClipboard(resources, command.useRelativePath);
+      })
+    );
+  }
 
-        const content = await buildExplorerCopyContent(resources, command.useRelativePath);
-        await vscode.env.clipboard.writeText(content);
-        void vscode.window.setStatusBarMessage("Copy Extra copied to clipboard.", 2000);
+  for (const command of REGISTERED_SCM_FOLDER_COMMANDS) {
+    context.subscriptions.push(
+      vscode.commands.registerCommand(command.id, async (
+        resource: unknown,
+        selectedResources: readonly unknown[] | undefined
+      ) => {
+        const folderUri = resolveFolderResourceUri(resource, selectedResources);
+        const resources = folderUri ? [folderUri] : [];
+        await copyResourcesToClipboard(resources, command.useRelativePath);
       })
     );
   }
@@ -75,6 +87,20 @@ export function activate(context: vscode.ExtensionContext): void {
 
 export function deactivate(): void {
   // VS Code disposes command registrations through context subscriptions.
+}
+
+async function copyResourcesToClipboard(
+  resources: readonly vscode.Uri[],
+  useRelativePath: boolean
+): Promise<void> {
+  if (resources.length === 0) {
+    void vscode.window.showInformationMessage("Copy Extra requires a file or folder selection.");
+    return;
+  }
+
+  const content = await buildExplorerCopyContent(resources, useRelativePath);
+  await vscode.env.clipboard.writeText(content);
+  void vscode.window.setStatusBarMessage("Copy Extra copied to clipboard.", 2000);
 }
 
 function requiresSelection(mode: CopyMode): boolean {
@@ -145,6 +171,70 @@ function resolveResourceUri(resource: unknown): vscode.Uri | undefined {
   }
 
   return undefined;
+}
+
+function resolveFolderResourceUri(
+  resource: unknown,
+  selectedResources: readonly unknown[] | undefined
+): vscode.Uri | undefined {
+  const directFolderUri = resolveResourceUri(resource);
+  if (directFolderUri) {
+    return directFolderUri;
+  }
+
+  const folderStates = collectFolderResourceStates(resource, selectedResources);
+  const stateUris: vscode.Uri[] = [];
+  for (const state of folderStates) {
+    const uri = resolveResourceUri(state);
+    if (uri) {
+      stateUris.push(uri);
+    }
+  }
+  return inferCommonParentDir(stateUris);
+}
+
+function collectFolderResourceStates(
+  resource: unknown,
+  selectedResources: readonly unknown[] | undefined
+): readonly unknown[] {
+  const states: unknown[] = [];
+  if (Array.isArray(resource)) {
+    states.push(...resource);
+  } else if (isRecord(resource) && Array.isArray(resource.resourceStates)) {
+    states.push(...resource.resourceStates);
+  }
+
+  if (Array.isArray(selectedResources)) {
+    states.push(...selectedResources);
+  }
+
+  return states;
+}
+
+function inferCommonParentDir(uris: readonly vscode.Uri[]): vscode.Uri | undefined {
+  if (uris.length === 0) {
+    return undefined;
+  }
+
+  const dirSegments = uris.map((uri) => path.dirname(uri.fsPath).split(path.sep));
+  const firstSegments = dirSegments[0];
+  let commonLength = firstSegments.length;
+
+  for (let index = 1; index < dirSegments.length; index++) {
+    const currentSegments = dirSegments[index];
+    const maxCompare = Math.min(commonLength, currentSegments.length);
+    let matchLength = 0;
+    while (matchLength < maxCompare && firstSegments[matchLength] === currentSegments[matchLength]) {
+      matchLength++;
+    }
+    commonLength = matchLength;
+    if (commonLength === 0) {
+      return undefined;
+    }
+  }
+
+  const commonPath = firstSegments.slice(0, commonLength).join(path.sep);
+  return commonPath ? vscode.Uri.file(commonPath) : undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
