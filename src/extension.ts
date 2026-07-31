@@ -89,16 +89,10 @@ function resolveExplorerResources(
   resource: unknown,
   selectedResources: readonly unknown[] | undefined
 ): readonly vscode.Uri[] {
-  const selectedResourceUris = selectedResources
-    ? selectedResources.flatMap((selectedResource) => {
-      const uri = resolveResourceUri(selectedResource);
-      return uri ? [uri] : [];
-    })
-    : [];
-  const directResourceUri = resolveResourceUri(resource);
-  const resources = selectedResourceUris.length > 0
-    ? selectedResourceUris
-    : directResourceUri ? [directResourceUri] : [];
+  const resources = [
+    ...collectResourceUris(selectedResources),
+    ...collectResourceUris(resource)
+  ];
   const seenResourceKeys = new Set<string>();
   const uniqueResources: vscode.Uri[] = [];
 
@@ -113,6 +107,22 @@ function resolveExplorerResources(
   }
 
   return uniqueResources;
+}
+
+function collectResourceUris(value: unknown): vscode.Uri[] {
+  if (Array.isArray(value)) {
+    const uris: vscode.Uri[] = [];
+    for (const item of value) {
+      const uri = resolveResourceUri(item);
+      if (uri) {
+        uris.push(uri);
+      }
+    }
+    return uris;
+  }
+
+  const uri = resolveResourceUri(value);
+  return uri ? [uri] : [];
 }
 
 function resolveResourceUri(resource: unknown): vscode.Uri | undefined {
